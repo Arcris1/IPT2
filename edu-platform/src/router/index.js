@@ -1,0 +1,31 @@
+import AppLayout from '@/layouts/AppLayout.vue'
+import { createRouter, createWebHistory } from 'vue-router'
+
+const router = createRouter({
+    history: createWebHistory(import.meta.env.BASE_URL),
+    routes: [
+        {
+            path: '/login',
+            name: 'login',
+            component: () => import('@/views/guest/LoginView.vue'),
+        },
+        {
+            path: '/dashboard',
+            component: AppLayout,
+            children: [
+                {
+                    path: '/feed',
+                    name: 'feed',
+                    component: () => import('@/views/authenticated/FeedView.vue'),
+                },
+                {
+                    path: '/chats',
+                    name: 'chats',
+                    component: () => import('@/views/authenticated/ChatsView.vue'),
+                },
+            ],
+        },
+    ],
+})
+
+export default router
