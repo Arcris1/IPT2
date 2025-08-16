@@ -1,4 +1,76 @@
-<script setup></script>
+<script setup>
+import { ref, onMounted } from 'vue'
+import { db, auth } from '@/config/firebaseConfig'
+import { onAuthStateChanged } from 'firebase/auth'
+import {
+    collection,
+    addDoc,
+    onSnapshot,
+    deleteDoc,
+    doc,
+    updateDoc,
+    serverTimestamp,
+} from 'firebase/firestore'
+
+const currentUser = ref([])
+const posts = ref([])
+const content = ref('')
+
+const createPost = async () => {
+    const user = auth.currentUser
+    console.log('User Details', user)
+    if (!user) {
+        console.log('You must be logged in to post')
+        return
+    }
+
+    if (!content.value.trim()) {
+        console.log('No content')
+        return
+    }
+
+    await addDoc(collection(db, 'posts'), {
+        uid: user.uid,
+        email: user.email,
+        displayname: user.displayName,
+        photoUrl: user.photoURL,
+        content: content.value,
+        like: 0,
+        dislike: 0,
+        reactions: [],
+        likersUid: [],
+        dislikersuid: [],
+        createdAt: serverTimestamp(),
+    })
+
+    content.value = ''
+}
+
+function listenToPosts() {
+    const colRef = collection(db, 'posts')
+    onSnapshot(colRef, (snapshot) => {
+        posts.value = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+        }))
+        console.log(posts.value)
+    })
+}
+
+onMounted(() => {
+    // ✅ Wait for Firebase to restore the user session
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            console.log('User is logged in:', user)
+            currentUser.value = user
+            listenToPosts()
+        } else {
+            console.log('No user logged in')
+            currentUser.value = null
+        }
+    })
+})
+</script>
 <template>
     <div class="bg-white rounded-lg shadow p-4">
         <div class="flex space-x-4">
@@ -8,6 +80,7 @@
                 class="w-10 h-10 rounded-full"
             />
             <textarea
+                v-model="content"
                 rows="2"
                 placeholder="Share something with your classmates…"
                 class="flex-1 resize-none bg-gray-100 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -43,6 +116,8 @@
                 Poll
             </button>
             <button
+                @click="createPost"
+                type="button"
                 class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition"
             >
                 Post

@@ -3,22 +3,19 @@ import { ref, onMounted } from 'vue'
 import { auth, db } from '@/config/firebaseConfig'
 import { createUserWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth'
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore'
-import { toast } from 'vue3-toastify'
 
 const firstName = ref('')
 const lastName = ref('')
 const email = ref('')
 const program = ref('')
+const major = ref('')
 const role = ref('')
 const password = ref('')
 const confirmPassword = ref('')
-const user = ref(null)
 
 const register = async () => {
     if (password.value != confirmPassword.value) {
-        console.log(password.value)
-        console.log(confirmPassword.value)
-        toast.error('Your password did not match')
+        alert('Your password is not match')
         return
     }
 
@@ -137,6 +134,19 @@ const register = async () => {
                             <option value="pharmacy">Pharmacy</option>
                             <option value="social_work">Social Work</option>
                         </select>
+                    </div>
+                    <div>
+                        <label for="major-address" class="sr-only">Major address</label>
+                        <input
+                            v-model="major"
+                            id="major-address"
+                            name="major"
+                            type="text"
+                            autocomplete="major"
+                            required
+                            class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                            placeholder="major address"
+                        />
                     </div>
                     <div>
                         <label for="role" class="sr-only">Role</label>

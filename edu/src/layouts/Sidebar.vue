@@ -1,4 +1,6 @@
-<script setup></script>
+<script setup>
+import { svgIcons } from '@/utils/svgIcons'
+</script>
 <template>
     <aside class="hidden lg:block lg:w-64 bg-white border-r px-4 py-6 space-y-8">
         <div>
@@ -95,6 +97,13 @@
                         />
                     </svg>
                     Chat
+                </router-link>
+                <router-link
+                    to="/profile"
+                    class="flex items-center text-gray-600 hover:text-indigo-600"
+                >
+                    <span v-html="svgIcons.profile(24, 24)" class="mr-1"></span>
+                    Profile
                 </router-link>
             </nav>
         </div>

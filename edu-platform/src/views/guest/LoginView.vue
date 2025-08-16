@@ -27,8 +27,10 @@ const handleSubmit = () => {
                 </h2>
                 <p class="mt-2 text-center text-sm text-gray-600">
                     Or
-                    <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500"
-                        >create a new account</a
+                    <router-link
+                        to="/register"
+                        class="font-medium text-indigo-600 hover:text-indigo-500"
+                        >create a new account</router-link
                     >
                 </p>
             </div>

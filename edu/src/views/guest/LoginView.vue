@@ -1,23 +1,36 @@
 <script setup>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { auth } from '@/config/firebaseConfig'
+import { signInWithEmailAndPassword } from 'firebase/auth'
+import { toast } from 'vue3-toastify'
+import { UserService } from '@/services/userService'
 
 const router = useRouter()
+const userService = new UserService()
 
-const username = ref('')
+const email = ref('')
 const password = ref('')
 const isRememberMe = ref(false)
+const user = ref(null)
 
 // login function
+const handleLogin = async () => {
+    try {
+        const users = await userService.login(email.value, password.value)
+        console.log(users)
 
-const handleLogin = () => {
-    if (username.value != 'admin' || password.value != 'password') {
-        console.error('Invalid credentials')
-        alert('Invalid credentials')
-        return
+        router.push('/')
+    } catch (err) {
+        console.error(err) // full error
+        const friendlyMessages = {
+            'auth/user-not-found': 'No account found for that email.',
+            'auth/wrong-password': 'Incorrect password. Please try again.',
+            'auth/invalid-email': 'Invalid email format.',
+            'auth/invalid-credential': 'Invalid Credentials.',
+        }
+        toast.error(friendlyMessages[err.code] || 'Something went wrong, please try again.')
     }
-
-    router.push('/')
 }
 </script>
 <template>
@@ -45,7 +58,7 @@ const handleLogin = () => {
                         <label for="email-address" class="sr-only">Email address</label>
                         <input
                             id="email-address"
-                            v-model="username"
+                            v-model="email"
                             name="email"
                             type="email"
                             autocomplete="email"
