@@ -27,6 +27,11 @@ const pages = ref([
         label: 'Chats',
         icon: 'M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z',
     },
+    {
+        link: '/profile',
+        label: 'Profile',
+        icon: 'M21 12a8.96 8.96 0 0 1-1.526 5.016A8.99 8.99 0 0 1 12 21a8.99 8.99 0 0 1-7.474-3.984A9 9 0 1 1 21 12Z',
+    },
 ])
 </script>
 <template>

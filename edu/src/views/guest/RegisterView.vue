@@ -13,6 +13,7 @@ const role = ref('')
 const password = ref('')
 const confirmPassword = ref('')
 const user = ref(null)
+const isSubmitting = ref(false)
 
 const register = async () => {
     if (password.value != confirmPassword.value) {
@@ -21,6 +22,8 @@ const register = async () => {
         toast.error('Your password did not match')
         return
     }
+
+    isSubmitting.value = true
 
     try {
         const userCredentials = await createUserWithEmailAndPassword(
@@ -47,6 +50,8 @@ const register = async () => {
     } catch (err) {
         console.log(err.message)
         toast.error('Failed to register, please try again')
+    } finally {
+        isSubmitting.value = false
     }
 }
 </script>
@@ -193,11 +198,19 @@ const register = async () => {
                 </div>
                 <div>
                     <button
+                        v-if="!isSubmitting"
                         @click="register"
                         type="button"
                         class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                     >
                         Register
+                    </button>
+                    <button
+                        v-if="isSubmitting"
+                        type="button"
+                        class="animate-pulse group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-400 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    >
+                        Registering...
                     </button>
                 </div>
             </form>

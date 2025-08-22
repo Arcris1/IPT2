@@ -3,19 +3,15 @@ import { initializeApp } from 'firebase/app'
 import { getAuth } from 'firebase/auth'
 import { getFirestore } from 'firebase/firestore'
 import { getStorage } from 'firebase/storage'
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// Your Firebase project configuration (from Firebase console)
 const firebaseConfig = {
-    apiKey: 'AIzaSyB03XsQyiYpOp7mC8vfLstpfkKFZMM9QBg',
-    authDomain: 'edu-platform-cb934.firebaseapp.com',
-    projectId: 'edu-platform-cb934',
-    storageBucket: 'edu-platform-cb934.firebasestorage.app',
-    messagingSenderId: '589323055756',
-    appId: '1:589323055756:web:cddbbe9db0b93e0e7e01a9',
-    measurementId: 'G-36XQRWPWPD',
+    apiKey: 'AIzaSyDqb-dyVpRoqESw0okJCL57T1maZ6406tk',
+    authDomain: 'edu-1-57c76.firebaseapp.com',
+    projectId: 'edu-1-57c76',
+    storageBucket: 'edu-1-57c76.firebasestorage.app',
+    messagingSenderId: '864615166784',
+    appId: '1:864615166784:web:b0268c57bf740b96fa40a5',
 }
 
 // Initialize Firebase

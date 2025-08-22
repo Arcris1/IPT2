@@ -53,7 +53,7 @@ function listenToPosts() {
             id: doc.id,
             ...doc.data(),
         }))
-        console.log(posts.value)
+        console.table(posts.value)
     })
 }
 
@@ -126,7 +126,7 @@ onMounted(() => {
     </div>
     <!-- Sample Post (reused) -->
     <div class="bg-white rounded-lg shadow overflow-hidden">
-        <div class="p-4 flex items-start space-x-3">
+        <div v-for="post in posts" :key="post.id" class="p-4 flex items-start space-x-3">
             <img
                 src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=facearea&facepad=3&w=64&h=64&q=80"
                 alt="User avatar"
@@ -135,8 +135,8 @@ onMounted(() => {
             <div class="flex-1">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h4 class="font-semibold text-gray-800">Jane Doe</h4>
-                        <span class="text-sm text-gray-500">Posted 2 hours ago</span>
+                        <h4 class="font-semibold text-gray-800">Jane Doe</h4>
+                        <span class="text-sm text-gray-500">Posted 2 hours ago</span>
                     </div>
                     <button class="text-gray-400 hover:text-gray-600">
                         <svg
@@ -153,8 +153,7 @@ onMounted(() => {
                     </button>
                 </div>
                 <p class="mt-2 text-gray-700">
-                    Does anyone have resources on linear algebra? I’m struggling with eigenvalues
-                    and eigenvectors. Any help is appreciated!
+                    {{ post.content }}
                 </p>
                 <div class="mt-4 flex items-center space-x-6 text-gray-600">
                     <button class="flex items-center hover:text-indigo-600">

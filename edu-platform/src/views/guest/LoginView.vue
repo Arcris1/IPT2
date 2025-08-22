@@ -1,19 +1,33 @@
 <script setup>
 import { ref } from 'vue'
+import { auth } from '@/config/firebaseConfig'
+import { signInWithEmailAndPassword } from 'firebase/auth'
 import { useRouter } from 'vue-router'
+import { toast } from 'vue3-toastify'
 
 const router = useRouter()
 const email = ref('')
 const password = ref('')
 const rememberMe = ref(false)
 
-const handleSubmit = () => {
-    // Handle form submission logic here
-    console.log('Email:', email.value)
-    console.log('Password:', password.value)
-    console.log('Remember Me:', rememberMe.value)
+const handleSubmit = async () => {
+    if (!email.value || !password.value) {
+        toast.error('Invalid email or password', {
+            autoClose: 1000,
+        })
+    }
 
-    router.push('/feed')
+    // Check the credentials if correct
+    try {
+        const user = await signInWithEmailAndPassword(auth, email.value, password.value)
+        console.log(user)
+        toast.success('Login successfull')
+        router.push('/feed')
+    } catch (err) {
+        toast.error('No user found', {
+            autoClose: 1000,
+        })
+    }
 }
 </script>
 <template>

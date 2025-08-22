@@ -1,23 +1,25 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { auth, db } from '@/config/firebaseConfig'
-import { createUserWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth'
+import { createUserWithEmailAndPassword } from 'firebase/auth'
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore'
+import { toast } from 'vue3-toastify'
 
 const firstName = ref('')
 const lastName = ref('')
 const email = ref('')
 const program = ref('')
-const major = ref('')
 const role = ref('')
 const password = ref('')
 const confirmPassword = ref('')
+const isSubmitting = ref(false)
 
 const register = async () => {
     if (password.value != confirmPassword.value) {
-        alert('Your password is not match')
         return
     }
+
+    isSubmitting.value = true
 
     try {
         const userCredentials = await createUserWithEmailAndPassword(
@@ -40,10 +42,14 @@ const register = async () => {
             createdAt: serverTimestamp(),
         })
 
-        toast.success('Account created successfully')
+        toast.success('Account created successfully!', {
+            autoClose: 1000,
+        })
     } catch (err) {
+        toast.error('Failed to create account')
         console.log(err.message)
-        toast.error('Failed to register, please try again')
+    } finally {
+        isSubmitting.value = false
     }
 }
 </script>
@@ -203,11 +209,19 @@ const register = async () => {
                 </div>
                 <div>
                     <button
+                        v-if="!isSubmitting"
                         @click="register"
                         type="button"
                         class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                     >
                         Register
+                    </button>
+                    <button
+                        v-if="isSubmitting"
+                        type="button"
+                        class="animate-pulse group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    >
+                        Register...
                     </button>
                 </div>
             </form>

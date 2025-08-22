@@ -28,6 +28,11 @@ const router = createRouter({
                     name: 'chats',
                     component: () => import('@/views/authenticated/ChatsView.vue'),
                 },
+                {
+                    path: '/profile',
+                    name: 'Profile',
+                    component: () => import('@/views/authenticated/ProfileView.vue'),
+                },
             ],
         },
     ],
