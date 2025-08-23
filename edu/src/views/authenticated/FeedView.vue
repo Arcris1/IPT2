@@ -10,8 +10,13 @@ import {
     doc,
     updateDoc,
     serverTimestamp,
+    query,
+    orderBy,
+    getDoc,
 } from 'firebase/firestore'
+import { formatDistanceToNow } from 'date-fns'
 
+const userDetails = ref({})
 const currentUser = ref([])
 const posts = ref([])
 const content = ref('')
@@ -46,14 +51,41 @@ const createPost = async () => {
     content.value = ''
 }
 
+// Get user details
+const fetchUserDetails = async (userId) => {
+    try {
+        const docRef = doc(db, 'users', userId)
+        const docSnap = await getDoc(docRef)
+
+        if (docSnap.exists()) {
+            userDetails.value = docSnap.data()
+            console.log(userDetails.value)
+        } else {
+            userDetails.value = null
+        }
+    } catch (error) {
+        console.error('Error getting document: ', error)
+    }
+}
+
 function listenToPosts() {
-    const colRef = collection(db, 'posts')
-    onSnapshot(colRef, (snapshot) => {
+    // const colRef = collection(db, 'posts')
+    const q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'))
+
+    onSnapshot(q, (snapshot) => {
         posts.value = snapshot.docs.map((doc) => ({
             id: doc.id,
             ...doc.data(),
         }))
-        console.table(posts.value)
+
+        // // Get post owner
+        // const docRef = doc(db, 'users', )
+        // const docSnap = getDoc(docRef)
+
+        // if (docSnap.exists()) {
+        //     console.log(docSnap.data())
+        // }
+        // console.table(posts.value)
     })
 }
 
@@ -64,6 +96,7 @@ onMounted(() => {
             console.log('User is logged in:', user)
             currentUser.value = user
             listenToPosts()
+            fetchUserDetails(user.uid)
         } else {
             console.log('No user logged in')
             currentUser.value = null
@@ -125,8 +158,13 @@ onMounted(() => {
         </div>
     </div>
     <!-- Sample Post (reused) -->
-    <div class="bg-white rounded-lg shadow overflow-hidden">
-        <div v-for="post in posts" :key="post.id" class="p-4 flex items-start space-x-3">
+    <div
+        v-for="post in posts"
+        :key="post.id"
+        class="bg-white rounded-lg shadow overflow-hidden"
+        style="max-width: 900px"
+    >
+        <div class="p-4 flex items-start space-x-3">
             <img
                 src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=facearea&facepad=3&w=64&h=64&q=80"
                 alt="User avatar"
@@ -135,7 +173,7 @@ onMounted(() => {
             <div class="flex-1">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h4 class="font-semibold text-gray-800">Jane Doe</h4>
+                        <h4 class="font-semibold text-gray-800">{{ post?.email }}</h4>
                         <span class="text-sm text-gray-500">Posted 2 hours ago</span>
                     </div>
                     <button class="text-gray-400 hover:text-gray-600">

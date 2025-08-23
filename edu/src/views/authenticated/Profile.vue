@@ -1,10 +1,10 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { auth, db } from '@/config/firebaseConfig'
 import { onAuthStateChanged } from 'firebase/auth'
 import { doc, getDoc } from 'firebase/firestore'
 
-const userDetails = ref()
+const userDetails = ref({})
 
 // Get user details
 const fetchUserDetails = async (userId) => {
@@ -27,9 +27,16 @@ onMounted(() => {
         console.log(auth.currentUser.uid)
         fetchUserDetails(auth.currentUser.uid)
     })
+
+    console.log('Mounted successfully')
+})
+
+onUnmounted(() => {
+    console.log('Bye bye..')
 })
 </script>
 <template>
+    {{ userDetails }}
     <!-- Cover & Basic Info -->
     <div class="bg-white rounded-lg shadow overflow-hidden">
         <div class="h-40 bg-indigo-600 relative">

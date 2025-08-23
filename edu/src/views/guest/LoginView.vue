@@ -4,10 +4,8 @@ import { useRouter } from 'vue-router'
 import { auth } from '@/config/firebaseConfig'
 import { signInWithEmailAndPassword } from 'firebase/auth'
 import { toast } from 'vue3-toastify'
-import { UserService } from '@/services/userService'
 
 const router = useRouter()
-const userService = new UserService()
 
 const email = ref('')
 const password = ref('')
@@ -17,7 +15,7 @@ const user = ref(null)
 // login function
 const handleLogin = async () => {
     try {
-        const users = await signInWithEmailAndPassword(auth, email.value, password.value)
+        user.value = await signInWithEmailAndPassword(auth, email.value, password.value)
 
         router.push('/')
     } catch (err) {

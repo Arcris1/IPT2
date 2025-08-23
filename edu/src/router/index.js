@@ -23,6 +23,11 @@ const router = createRouter({
                     name: 'dog',
                     component: import('@/views/guest/DogView.vue'),
                 },
+                {
+                    path: '/gender-reveal',
+                    name: 'gender.reveal',
+                    component: import('@/views/guest/GenderReveal.vue'),
+                },
             ],
         },
         {
