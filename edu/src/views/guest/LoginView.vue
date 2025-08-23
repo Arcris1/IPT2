@@ -18,7 +18,6 @@ const user = ref(null)
 const handleLogin = async () => {
     try {
         const users = await signInWithEmailAndPassword(auth, email.value, password.value)
-        console.log(users)
 
         router.push('/')
     } catch (err) {

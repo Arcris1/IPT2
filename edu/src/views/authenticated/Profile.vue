@@ -1,28 +1,35 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { UserService } from '@/services/userService'
+import { auth, db } from '@/config/firebaseConfig'
+import { onAuthStateChanged } from 'firebase/auth'
+import { doc, getDoc } from 'firebase/firestore'
 
-const userService = new UserService()
-const userDetails = ref({})
+const userDetails = ref()
 
-function snakeToTitle(str) {
-    return str
-        .trim()
-        .toLowerCase()
-        .split('_')
-        .filter(Boolean)
-        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-        .join(' ')
+// Get user details
+const fetchUserDetails = async (userId) => {
+    try {
+        const docRef = doc(db, 'users', userId)
+        const docSnap = await getDoc(docRef)
+
+        if (docSnap.exists()) {
+            userDetails.value = docSnap.data()
+        } else {
+            userDetails.value = null
+        }
+    } catch (error) {
+        console.error('Error getting document: ', error)
+    }
 }
 
-onMounted(async () => {
-    userService.getUserProfileDetailsOnLoad((profile) => {
-        userDetails.value = profile
+onMounted(() => {
+    onAuthStateChanged(auth, async () => {
+        console.log(auth.currentUser.uid)
+        fetchUserDetails(auth.currentUser.uid)
     })
 })
 </script>
 <template>
-    {{ userDetails }}
     <!-- Cover & Basic Info -->
     <div class="bg-white rounded-lg shadow overflow-hidden">
         <div class="h-40 bg-indigo-600 relative">
@@ -41,11 +48,9 @@ onMounted(async () => {
                     class="w-20 h-20 rounded-full border-4 border-white"
                 />
                 <div class="text-white">
-                    <h2 class="text-2xl font-bold">
-                        {{ userDetails.firstName }} {{ userDetails.lastName }}
-                    </h2>
+                    <h2 class="text-2xl font-bold"></h2>
                     <p class="text-sm">
-                        {{ snakeToTitle(userDetails?.program || '') }} – Class of 2026
+                        {{ userDetails?.firstName }} {{ userDetails?.lastName }} – Class of 2026
                     </p>
                 </div>
             </div>
@@ -65,13 +70,11 @@ onMounted(async () => {
     <!-- About Section -->
     <section class="bg-white rounded-lg shadow p-6">
         <h3 class="text-lg font-semibold mb-4">About</h3>
-        <p class="text-gray-700 mb-4">
-            {{ userDetails.about }}
-        </p>
+        <p class="text-gray-700 mb-4">{{ userDetails?.about }}</p>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-700">
-            <div><span class="font-medium">Major:</span> Computer Science</div>
+            <div><span class="font-medium">Program:</span> {{ userDetails?.program }}</div>
             <div><span class="font-medium">Year:</span> Junior (Class of 2026)</div>
-            <div><span class="font-medium">Email:</span> alex.johnson@example.edu</div>
+            <div><span class="font-medium">Email:</span> {{ userDetails?.email }}</div>
             <div><span class="font-medium">Interests:</span> AI, Robotics, Music</div>
             <div><span class="font-medium">Skills:</span> Python, C++, React</div>
         </div>
