@@ -17,7 +17,7 @@ const user = ref(null)
 // login function
 const handleLogin = async () => {
     try {
-        const users = await userService.login(email.value, password.value)
+        const users = await signInWithEmailAndPassword(auth, email.value, password.value)
         console.log(users)
 
         router.push('/')
