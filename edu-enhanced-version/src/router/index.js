@@ -1,6 +1,7 @@
 import { auth } from '@/config/firebaseConfig'
 import { onAuthStateChanged } from 'firebase/auth'
 import { createRouter, createWebHistory } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -50,16 +51,19 @@ const router = createRouter({
                 },
                 {
                     path: '/profile',
-                    name: 'profile',
-                    component: import('@/views/authenticated/Profile.vue'),
+                    name: 'personal.profile',
+                    component: import('@/views/authenticated/profile/PersonalProfile.vue'),
+                },
+                {
+                    path: '/profile/:uid',
+                    name: 'user.profile',
+                    component: () => import('@/views/authenticated/profile/UserProfileView.vue'),
+                    props: true, // so you can access uid as a prop inside the component
+                    meta: { requiresAuth: true },
                 },
             ],
         },
-        {
-            path: '/file-upload',
-            name: 'file.upload',
-            component: import('@/views/authenticated/UploadFile.vue'),
-        },
+
         {
             path: '/page-not-found',
             name: 'page.not.found',
@@ -69,14 +73,13 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-    onAuthStateChanged(auth, () => {
-        const user = auth.currentUser
-        if (to.meta.requiresAuth && !user) {
-            next({ name: 'login' })
-        } else {
-            next()
-        }
-    })
+    const authStore = useAuthStore()
+
+    if (to.meta.requiresAuth && !authStore.isAuthenticated) {
+        next({ name: 'login' })
+    } else {
+        next()
+    }
 })
 
 export default router

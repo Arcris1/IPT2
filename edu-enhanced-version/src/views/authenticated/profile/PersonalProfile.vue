@@ -1,35 +1,29 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
-import { auth, db } from '@/config/firebaseConfig'
-import { onAuthStateChanged } from 'firebase/auth'
-import { doc, getDoc } from 'firebase/firestore'
+import { useAuthStore } from '@/stores/auth'
 
-const userDetails = ref({})
-
-// Get user details
-const fetchUserDetails = async (userId) => {
-    try {
-        const docRef = doc(db, 'users', userId)
-        const docSnap = await getDoc(docRef)
-
-        if (docSnap.exists()) {
-            userDetails.value = docSnap.data()
-        } else {
-            userDetails.value = null
-        }
-    } catch (error) {
-        console.error('Error getting document: ', error)
-    }
-}
-
-onMounted(() => {
-    onAuthStateChanged(auth, async () => {
-        console.log(auth.currentUser.uid)
-        fetchUserDetails(auth.currentUser.uid)
-    })
-
-    console.log('Mounted successfully')
+const authStore = useAuthStore()
+const isEditProfileShown = ref(false)
+const userDetailsForm = ref({
+    firstName: '',
+    lastName: '',
+    program: '',
+    email: '',
+    about: '',
 })
+
+const openEditProfile = () => {
+    if (authStore.me) {
+        userDetailsForm.value = {
+            firstName: authStore.me.firstName || '',
+            lastName: authStore.me.lastName || '',
+            program: authStore.me.program || '',
+            email: authStore.me.email || '',
+            about: authStore.me.about || '',
+        }
+    }
+    isEditProfileShown.value = true
+}
 
 onUnmounted(() => {
     console.log('Bye bye..')
@@ -56,7 +50,7 @@ onUnmounted(() => {
                 <div class="text-white">
                     <h2 class="text-2xl font-bold"></h2>
                     <p class="text-sm">
-                        {{ userDetails?.firstName }} {{ userDetails?.lastName }} – Class of 2026
+                        {{ authStore.me?.firstName }} {{ authStore.me?.lastName }} – Class of 2026
                     </p>
                 </div>
             </div>
@@ -67,6 +61,7 @@ onUnmounted(() => {
                 <span class="text-sm text-gray-600">Manila, Philippines</span>
             </div>
             <button
+                @click="openEditProfile"
                 class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 text-sm"
             >
                 Edit Profile
@@ -76,11 +71,11 @@ onUnmounted(() => {
     <!-- About Section -->
     <section class="bg-white rounded-lg shadow p-6">
         <h3 class="text-lg font-semibold mb-4">About</h3>
-        <p class="text-gray-700 mb-4">{{ userDetails?.about }}</p>
+        <p class="text-gray-700 mb-4">{{ authStore.me?.about }}</p>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-700">
-            <div><span class="font-medium">Program:</span> {{ userDetails?.program }}</div>
+            <div><span class="font-medium">Program:</span> {{ authStore.me?.program }}</div>
             <div><span class="font-medium">Year:</span> Junior (Class of 2026)</div>
-            <div><span class="font-medium">Email:</span> {{ userDetails?.email }}</div>
+            <div><span class="font-medium">Email:</span> {{ authStore.me?.email }}</div>
             <div><span class="font-medium">Interests:</span> AI, Robotics, Music</div>
             <div><span class="font-medium">Skills:</span> Python, C++, React</div>
         </div>
@@ -272,54 +267,92 @@ onUnmounted(() => {
     </section>
 
     <!-- Modal -->
-    <!-- Modal (hidden by default) -->
     <div
-        id="modal"
-        class="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+        class="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-51"
+        :class="{ hidden: !isEditProfileShown }"
     >
         <div class="bg-white rounded-2xl shadow-lg w-full max-w-md p-6 relative">
             <!-- Close Button -->
             <button
-                id="closeModal"
+                @click="isEditProfileShown = false"
                 class="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
             >
                 ✕
             </button>
 
             <!-- Modal Header -->
-            <h2 class="text-xl font-semibold mb-4">Contact Form</h2>
+            <h2 class="text-xl font-semibold mb-4">Personal Details</h2>
 
             <!-- Modal Form -->
             <form action="#" class="space-y-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Name</label>
+                    <label class="block text-sm font-medium text-gray-700">First Name</label>
                     <input
+                        v-model="userDetailsForm.firstName"
                         type="text"
                         class="w-full mt-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
                     />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Last Name</label>
+                    <input
+                        v-model="userDetailsForm.lastName"
+                        type="text"
+                        class="w-full mt-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    />
+                </div>
+                <div>
+                    <h2 class="text-lg font-semibold mb-2">Program</h2>
+                    <select
+                        v-model="userDetailsForm.program"
+                        class="w-full px-3 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm"
+                    >
+                        <option disabled value="">Select your program</option>
+                        <option value="computer_science">Computer Science</option>
+                        <option value="information_technology">Information Technology</option>
+                        <option value="business_administration">Business Administration</option>
+                        <option value="accounting">Accounting</option>
+                        <option value="psychology">Psychology</option>
+                        <option value="education">Education</option>
+                        <option value="nursing">Nursing</option>
+                        <option value="engineering">Engineering</option>
+                        <option value="hospitality_management">Hospitality Management</option>
+                        <option value="mass_communication">Mass Communication</option>
+                        <option value="biology">Biology</option>
+                        <option value="mathematics">Mathematics</option>
+                        <option value="economics">Economics</option>
+                        <option value="political_science">Political Science</option>
+                        <option value="public_administration">Public Administration</option>
+                        <option value="criminology">Criminology</option>
+                        <option value="architecture">Architecture</option>
+                        <option value="fine_arts">Fine Arts</option>
+                        <option value="pharmacy">Pharmacy</option>
+                        <option value="social_work">Social Work</option>
+                    </select>
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Email</label>
                     <input
+                        v-model="userDetailsForm.email"
                         type="email"
                         class="w-full mt-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
                     />
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Message</label>
+                    <label class="block text-sm font-medium text-gray-700">About Me</label>
                     <textarea
+                        v-model="userDetailsForm.about"
                         class="w-full mt-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
                     ></textarea>
                 </div>
 
-                <!-- Submit Button -->
                 <button
                     type="submit"
                     class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
                 >
-                    Submit
+                    Update Profile
                 </button>
             </form>
         </div>
